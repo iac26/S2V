@@ -6,6 +6,7 @@
 #include "game.h"
 
 
+
 int readFile(void);
 
 int main(void) {

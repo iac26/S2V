@@ -27,7 +27,7 @@ PLAYER hscores[MAX_SCORES];
 int start(void);
 void print(char** tex, int tex_len, int x, int y);
 int input(int* x);
-void draw(int x, int y, TNT obj, int dead, int tm);
+void draw(int x, int y, TNT obj, int dead, int tm, int vrr);
 int calculate(TNT* obj, int x, int speed);
 int menu(void);
 void highScores(void);

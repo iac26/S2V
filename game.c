@@ -19,16 +19,17 @@ int start(void) {
 	time_t start_time;
 	time_t current_time;
 	TNT obj;
-	obj.x1 = (rand() % 16)+2;
-	obj.x2 = (rand() % 16)+2;
-	obj.x3 = (rand() % 16)+2;
+	obj.x1 = (rand() % 10)+8;
+	obj.x2 = (rand() % 10)+8;
+	obj.x3 = (rand() % 10)+8;
 	obj.y1 = 25.;
 	obj.y2 = 50.;
 	obj.y3 = 75.;
-	int x=5, y=1;
+	int x=4, y=1;
 	int dead = 0;
 	int ellapsed_time; 
 	int speed = SPEED;
+	int vrr = 0;
 	int m = menu();
 	if (m == EXIT) {
 		return EXIT;
@@ -37,8 +38,8 @@ int start(void) {
 	while(1) {
 		current_time = time(NULL);
 		ellapsed_time = current_time - start_time;
-		if((ellapsed_time % 5) == 0)
-			speed += DIFF;
+		speed = SPEED + DIFF*(ellapsed_time/5);
+		vrr = (ellapsed_time/5);
 		int o = input(&x);
 		if(o == EXIT){
 			return EXIT;
@@ -48,7 +49,7 @@ int start(void) {
 		}
 		dead = calculate(&obj, x, speed); 
 		clear();
-		draw(x, y, obj, dead, ellapsed_time);
+		draw(x, y, obj, dead, ellapsed_time, vrr);
 		if(dead){
 			newScore(ellapsed_time);
 			return RESTART;
@@ -131,7 +132,7 @@ void highScores(void) {
 		attroff(A_BOLD);
 		for(int i = 0; i < MAX_SCORES; i++) {
 			move(5+i, 27);
-			printw("%2d: %-15s  %4d", i, hscores[i].name, hscores[i].score);
+			printw("%2d: %-15s  %4d", i+1, hscores[i].name, hscores[i].score);
 		}
 		move(23,79);
 		printw(" ");
@@ -146,16 +147,26 @@ void highScores(void) {
 
 void newScore(int tm){
 	char name[16];
+	for(int i = 0; i < 16; i++)
+		name[i] = '\0';
 	int i = 0; 
 	while(1) {
 		clear();
 		move(1, TITLE_POS);
 		printw("SIMULATEUR 2 VOITUR");
-		print(go, GO_LEN, 3, 20);
+		print(go, GO_LEN, 3, 12);
 		move(9, 28);
+		attron(A_BOLD);
 		printw("score: %d", tm); 
+		attroff(A_BOLD);
 		move(10, 28);
-		printw("enter name: %s", name); 
+		printw("enter name: %-15s", name); 
+		move(10, 39);
+		attron(A_BLINK);
+		printw(">");
+		attroff(A_BLINK);
+		move(23,79);
+		printw(" ");
 		timeout(TMOUT);
 		char c = getch();
 		if((((int) c) > 31)&&(((int) c) < 127) ){
@@ -170,11 +181,6 @@ void newScore(int tm){
 			save(p);
 			break;
 		}
-
-		move(23,79);
-		printw(" ");
-		
-		
 	}
 }
 
@@ -229,7 +235,7 @@ void print(char** tex, int tex_len, int x, int y) {
 	}
 }
 
-void draw(int x, int y, TNT obj, int dead, int tm) {
+void draw(int x, int y, TNT obj, int dead, int tm, int vrr) {
 	move(0,0);
 	printw("press \"m\" for menu");
 	move(1, TITLE_POS);
@@ -243,6 +249,14 @@ void draw(int x, int y, TNT obj, int dead, int tm) {
 	attron(A_BOLD);
 	move(0,70);
 	printw("Score: %d", tm);
+	move(23, 1);
+	printw("VRRRRRRR");
+	vrr += (rand()%4) -1;
+	for(int i = 0; i < vrr; i++) {
+		move(23,9+i);
+		printw("R");
+	}
+	
 	attroff(A_BOLD);
 	move(23,79);
 	printw(" ");
@@ -251,6 +265,8 @@ void draw(int x, int y, TNT obj, int dead, int tm) {
 		attron(A_BOLD);
 		print(explo, EXPLO_LEN, x-2, y+3);
 		print(go, GO_LEN, 9, 20);
+		move(23, 1);
+		printw("BOOOOOOOOOOOOOM                          ");
 		attroff(A_BOLD);
 		move(15,35);
 		printw("you survived %d seconds!", tm);
